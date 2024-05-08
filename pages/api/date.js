@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
+import { getDatabase, ref, child, push, update  } from "firebase/database";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDDb1T_gaUgBfl4lIbHfIO2-70h_CgVcLI",
@@ -12,7 +13,31 @@ const firebaseConfig = {
   measurementId: "G-55EV267W4H",
 };
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+const db = getDatabase(app);
+
+async function writeNewPost(info) {
+
+  //dapat info-naay object identifier date para sorter?
+
+  // A post entry.
+
+
+  // Get a key for a new Post.
+  const newPostKey = push(child(ref(db), 'posts')).key;
+
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  const updates = {};
+  updates['/posts/' + 'logs/' + newPostKey] = info;
+  // updates['/user-posts/' + uid + '/' + newPostKey] = postData;
+
+  return update(ref(db), updates);
+  //increment by update, =naa sa firebase
+}
+
+const d = new Date
+
+
+
 
 const allowCors = (fn) => async (req, res) => {
   res.setHeader("Access-Control-Allow-Credentials", true);
@@ -35,6 +60,7 @@ const allowCors = (fn) => async (req, res) => {
     const data = req.body;
     res.status(200).json({ message: "data received" });
     console.log(data);
+    await writeNewPost(data)
   }
 
   if (req.method === "GET") {
